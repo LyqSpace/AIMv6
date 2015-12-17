@@ -18,4 +18,3 @@ void uart_spin_puts(const char *str)
 	for (; *str != '\0'; ++str)
 		uart_spin_putbyte((unsigned char)*str);
 }
-

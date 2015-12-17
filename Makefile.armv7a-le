@@ -44,9 +44,16 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 		   firmware/arch/$(ARCH)/$(MACH)/chip.m4 \
 		   firmware/arch/$(ARCH)/$(MACH)/$(BOARD)/board.m4
 
-MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
+KERN_OBJS = kern/kern.o \
+			kern/vm/vm.o \
+			kern/vm/l1l2cache.o \
+			drivers/serial/uart-zynq7000.o \
+			drivers/serial/uart.o \
+			drivers/serial/puthex.o \
+			drivers/clock/gtc-a9mpcore.o \
+			drivers/sd/sd-zynq7000.o
 
-all: firmware.bin mbr.bin
+all: firmware.bin mbr.bin kern.elf
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -58,15 +65,23 @@ firmware.ld: $(FIRMWARE_M4)
 firmware.elf: $(FIRMWARE_OBJS) firmware.ld
 	$(LD) $(LDFLAGS) -T firmware.ld -o $@ $(FIRMWARE_OBJS)
 
-$(MBR_OBJS): EXTRA_CFLAGS := -Os
+MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
+
+$(MBR_OBJS): EXTRA_CFLAGS = -Os
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
+
+$(KERN_OBJS): EXTRA_CFLAGS = -O2
+
+kern.elf: $(KERN_OBJS) kern/kern.ld
+	$(LD) $(LDFLAGS) -T kern/kern.ld -o $@ $^
 
 clean:
 	rm -f firmware.ld
 	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
 	rm -rf $(MBR_OBJS) mbr.elf mbr.bin mbr.s
+	rm -rf $(KERN_OBJS) kern.elf kern.s
 
 .S.o:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
