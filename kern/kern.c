@@ -7,5 +7,7 @@ void kernel_entry(void) {
 
 	setup_vm();
 
+	uart_spin_puts("KERN: Enable MMU successfully.\r\n");
+
 	while (1);
 }

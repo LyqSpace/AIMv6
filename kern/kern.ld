@@ -4,7 +4,7 @@ MEMORY
 {
 	KERNEL (rwx) :
 		ORIGIN = 0x700000,
-		LENGTH = 1M
+		LENGTH = 10M
 }
 
 SECTIONS

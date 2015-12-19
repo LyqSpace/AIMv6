@@ -46,7 +46,6 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 
 KERN_OBJS = kern/kern.o \
 			kern/vm/vm.o \
-			kern/vm/l1l2cache.o \
 			drivers/serial/uart-zynq7000.o \
 			drivers/serial/uart.o \
 			drivers/serial/puthex.o \
@@ -70,13 +69,13 @@ MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 $(MBR_OBJS): EXTRA_CFLAGS = -Os
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
-	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
-
+	$(LD) $(LDFLAGS) -o $@ $^
+# -T boot/arch/$(ARCH)/$(MACH)/mbr.ld
 $(KERN_OBJS): EXTRA_CFLAGS = -O2
 
 kern.elf: $(KERN_OBJS) kern/kern.ld
-	$(LD) $(LDFLAGS) -T kern/kern.ld -o $@ $^
-
+	$(LD) $(LDFLAGS)  -o $@ $^
+# -T kern/kern.ld
 clean:
 	rm -f firmware.ld
 	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
