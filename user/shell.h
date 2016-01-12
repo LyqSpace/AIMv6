@@ -8,25 +8,16 @@
  *
  */
 
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
+#ifndef SHELL_H
+#define SHELL_H
 
 #include <config.h>
 #include <sys/types.h>
 #include <stdarg.h>
 #include <drivers/serial/uart.h>
 #include <drivers/serial/puthex.h>
+#include "../kern/interrupt/system_call.h"
 
-#define SVC_STACK 0X1D000000
-#define IRQ_STACK 0x1C000000
-#define KERNEL_SPACE 0x80000000
-
-void interrupt_init();
-void C_SVC_handler(uint, uint*);
-void C_prefetch_abort_handler();
-void C_data_abort_handler();
-void C_IRQ_handler();
-void print_spsr();
-void print_cpsr();
+int shell_main();
 
 #endif

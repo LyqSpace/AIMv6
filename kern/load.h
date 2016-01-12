@@ -8,25 +8,16 @@
  *
  */
 
-#ifndef INTERRUPT_H
-#define INTERRUPT_H
-
 #include <config.h>
 #include <sys/types.h>
 #include <stdarg.h>
 #include <drivers/serial/uart.h>
 #include <drivers/serial/puthex.h>
+#include <drivers/sd/sd-zynq7000.h>
+#include "kern/mm/run.h"
+#include "kern/mm/page_table_defines.h"
+#include "kern/sched/sched.h"
+#include "kern/interrupt/mode_switch.h"
+ #include "kern/interrupt/interrupt.h"
 
-#define SVC_STACK 0X1D000000
-#define IRQ_STACK 0x1C000000
-#define KERNEL_SPACE 0x80000000
-
-void interrupt_init();
-void C_SVC_handler(uint, uint*);
-void C_prefetch_abort_handler();
-void C_data_abort_handler();
-void C_IRQ_handler();
-void print_spsr();
-void print_cpsr();
-
-#endif
+void load_shell();

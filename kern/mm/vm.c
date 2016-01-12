@@ -14,6 +14,7 @@
 #include <stdarg.h>
 #include <drivers/serial/uart.h>
 #include <drivers/serial/puthex.h>
+#include "run.h"
 
 void fill_pte_common(TypePte *pte, u32 addr) {
 
@@ -212,6 +213,8 @@ void enable_MMU() {
 	);
 }
 
+u32 kernel_TTB[4096];
+
 void vm_init() {
 
 	init_level_1_page_table();
@@ -236,5 +239,15 @@ void vm_init() {
 	);
 
 	uart_spin_puts("VM: This sentence should not be seen.\r\n");
+
+}
+
+char* new_TTB() {
+
+	char *ttb_addr = kalloc(1);
+	for (int i = 0; i < 4096; i++) {
+		ttb_addr[i] = kernel_TTB[i];
+	}
+	return ttb_addr;
 
 }

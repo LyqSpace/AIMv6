@@ -12,8 +12,10 @@
 #include "mm/page_table_defines.h"
 #include "mm/run.h"
 #include "interrupt/interrupt.h"
+#include "sched/sched.h"
+#include "load.h"
 
-void kernel_entry(void) {
+void kernel_main(void) {
 
 	uart_spin_puts("KERN: Here is Kernel!\r\n");
 
@@ -25,15 +27,11 @@ void kernel_entry(void) {
 	print_cpsr();
 	interrupt_init();
 
-	enter_USER_mode();
-
 	scheduler_init();
 
-	asm volatile (
-		"mov r0, #0x12;"
-		"mov r1, #0x34;"
-		"swi 0x10;"
-	);
+	load_shell();
+
+	enter_scheduler();
 
 	while (1);
 }

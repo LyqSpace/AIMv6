@@ -28,6 +28,7 @@ void mbr_bootmain(void)
 	
 	/* Read ELF in Partition 2 to Memory */
 	volatile u32 partition2_start = *(u32*)(mbr_memAddr + 0x1D6); // 470
+	//puthex(partition2_start);
 
 	/* Read ELF header to Memory */
 	volatile u8 *elfHeader_memAddr = (void *)0x300000;
@@ -57,7 +58,7 @@ void mbr_bootmain(void)
 	}
 	
 	uart_spin_puts("MBR: Read ELF finished!\r\n");
-	
+
 	kernel_entry();
 
 	while (1);

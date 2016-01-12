@@ -46,5 +46,7 @@ void enable_MMU();
 
 void vm_init();
 
+char *new_TTB();
+
 
 #endif

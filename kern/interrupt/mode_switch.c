@@ -8,7 +8,7 @@
  *
  */
 
-#include "interrupt.h"
+#include "mode_switch.h"
 
 void enter_SVC_mode() {
 	asm volatile (
@@ -53,7 +53,7 @@ void enter_USER_mode() {
 		"mov r1, lr;"
 		"mrs r0, cpsr;"
 		"bic r0, r0, #0xf;"
-		"orr r0, r0, #0x0;"
+		"and r0, r0, #0xfffffff0;"
 		"msr cpsr, r0;"
 		"mov pc, r1;"
 	);

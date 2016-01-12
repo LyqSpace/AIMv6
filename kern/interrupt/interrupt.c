@@ -8,15 +8,17 @@
  *
  */
 
- #include "interrupt.h"
+#include "interrupt.h"
+#include "mode_switch.h"
+#include "system_call.h"
 
-void SYS_init() {
+void SVC_init() {
 
-	enter_SYS_mode();
+	enter_SVC_mode();
 	asm volatile (
 		"mov sp, %0;"
 		:
-		:"r"(KERNEL_SPACE + SYS_STACK)
+		:"r"(KERNEL_SPACE + SVC_STACK)
 	);
 }
 
@@ -34,9 +36,9 @@ void interrupt_init() {
 	
 	uart_spin_puts("INTERRUPT: Initialize interrupts!\r\n");
 
-	SYS_init();
+	SVC_init();
 	IRQ_init();
-	enter_SVC_mode();
+	enter_SYS_mode();
 
 	asm volatile(
 		"ldr r0, =interrupt_vector;"
@@ -52,12 +54,15 @@ void interrupt_init() {
 void C_SVC_handler(uint number, uint *params) {
 
 	uart_spin_puts("INTERRUPT: SVC handler.\r\n");
+	puthex(number);
+	puthex(params[0]);
+	puthex(params[1]);
 	switch (number) {
 		case 0x10:
 			system_call(params);
 			break;
 		case 1:
-			uart_spin_puts("1.\r\n");		
+			uart_spin_puts("test.\r\n");		
 			break;
 		default:
 			uart_spin_puts("nothing.\r\n");		
@@ -77,13 +82,6 @@ void C_Data_handler() {
 
 }
 
-void system_call(uint *params) {
-
-	puthex(params[0]);
-	puthex(params[1]);
-
-}
-
 void print_spsr() {
 	int spsr;
 	asm volatile(
@@ -91,7 +89,7 @@ void print_spsr() {
 		"mov %0, r0;" 
 		: "=r"(spsr)
 	);
-	uart_spin_puts("DEBUG: SPSR=");
+	uart_spin_puts("INTERRUPT: SPSR=");
 	puthex(spsr);
 }
 
@@ -102,6 +100,6 @@ void print_cpsr() {
 		"mov %0, r0;" 
 		: "=r"(cpsr)
 	);
-	uart_spin_puts("DEBUG: CPSR=");
+	uart_spin_puts("INTERRUPT: CPSR=");
 	puthex(cpsr);
 }
