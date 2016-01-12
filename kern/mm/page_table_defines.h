@@ -39,6 +39,12 @@ typedef struct TypePte {
 	unsigned base : 12;	
 } TypePte;
 
+void invalidate_TLBs_Caches();
+void setup_TTB();
+void setup_Domain_Access();
+void enable_MMU();
+
 void vm_init();
+
 
 #endif

@@ -27,6 +27,8 @@ typedef struct TypeRun {
 	struct TypeRun *next;
 } TypeRun;
 
+extern TypeRun *freeMM_head;
+
 void mm_init();
 char* kalloc(uint);
 int kfree(char*, uint);

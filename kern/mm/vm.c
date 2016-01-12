@@ -160,6 +160,15 @@ void invalidate_DCache() {
 
 }
 
+void invalidate_TLBs_Caches() {
+
+	invalidate_TLBs();
+	invalidate_ICache();
+	invalidate_BranchPredictor();
+	invalidate_DCache();
+
+}
+
 void setup_TTB() {
 
 	uart_spin_puts("VM: Set up Translate Table Base.\r\n");
@@ -207,10 +216,7 @@ void vm_init() {
 
 	init_level_1_page_table();
 
-	invalidate_TLBs();
-	invalidate_ICache();
-	invalidate_BranchPredictor();
-	invalidate_DCache();
+	invalidate_TLBs_Caches();
 	setup_TTB();
 	setup_Domain_Access();
 	enable_MMU();

@@ -10,29 +10,58 @@
 
  #include "interrupt.h"
 
+void SYS_init() {
+
+	enter_SYS_mode();
+	asm volatile (
+		"mov sp, %0;"
+		:
+		:"r"(KERNEL_SPACE + SYS_STACK)
+	);
+}
+
+void IRQ_init() {
+
+	enter_IRQ_mode();
+	asm volatile (
+		"mov sp, %0;"
+		:
+		:"r"(KERNEL_SPACE + IRQ_STACK)
+	);
+}
+
 void interrupt_init() {
-	uart_spin_puts("INTERRUPT: Initialized interrupts.\r\n");
+	
+	uart_spin_puts("INTERRUPT: Initialize interrupts!\r\n");
+
+	SYS_init();
+	IRQ_init();
+	enter_SVC_mode();
+
 	asm volatile(
 		"ldr r0, =interrupt_vector;"
 		"ldr r1, =0x80000000;"
 		"add r0, r1, r0;"
 		"mcr p15, 0, r0, c12, c0, 0;"
+		"isb;"
+		"dsb;"
 	);
 }
 
 
-void C_SVC_handler(uint number, uint *param) {
-	uart_spin_puts("SVC handler.\r\n");
-	print_spsr();
-	print_cpsr();
+void C_SVC_handler(uint number, uint *params) {
+
+	uart_spin_puts("INTERRUPT: SVC handler.\r\n");
 	switch (number) {
-		case 0:
-			system_call(param);
+		case 0x10:
+			system_call(params);
 			break;
 		case 1:
+			uart_spin_puts("1.\r\n");		
 			break;
+		default:
+			uart_spin_puts("nothing.\r\n");		
 	}
-	print_spsr();
 }
 
 void C_IRQ_handler() {
@@ -48,7 +77,10 @@ void C_Data_handler() {
 
 }
 
-void system_call(uint *param) {
+void system_call(uint *params) {
+
+	puthex(params[0]);
+	puthex(params[1]);
 
 }
 

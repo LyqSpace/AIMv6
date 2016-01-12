@@ -10,21 +10,74 @@
 
 #include "interrupt.h"
 
-void enter_user_mode() {
-	asm volatile(
-		"mrs r0, cpsr\r\n"
-		"bic r0, r0, #0xF\r\n"
-		"msr cpsr, r0\r\n"
-		"isb\r\n"
-		"movs pc, lr\r\n");
+void enter_SVC_mode() {
+	asm volatile (
+		"isb;"
+		"mov r1, lr;"
+		"mrs r0, cpsr;"
+		"bic r0, r0, #0xf;"
+		"orr r0, r0, #0x3;"
+		"msr cpsr, r0;"
+		"mov pc, r1;"
+	);
 }
 
-void enter_sys_mode() {
-	asm volatile(
-		"mrs r0, cpsr\r\n"
-		"orr r0, r0, #0xF\r\n"
-		"msr cpsr, r0\r\n"
-		"isb\r\n"
-		"movs pc, lr\r\n"
-		"isb\r\n");
+void enter_IRQ_mode() {
+	asm volatile (
+		"isb;"
+		"mov r1, lr;"
+		"mrs r0, cpsr;"
+		"bic r0, r0, #0xf;"
+		"orr r0, r0, #0x2;"
+		"msr cpsr, r0;"
+		"mov pc, r1;"
+	);
+}
+
+void enter_SYS_mode() {
+	asm volatile (
+		"isb;"
+		"mov r1, lr;"
+		"mrs r0, cpsr;"
+		"bic r0, r0, #0xf;"
+		"orr r0, r0, #0xf;"
+		"msr cpsr, r0;"
+		"mov pc, r1;"
+	);
+	
+}
+
+void enter_USER_mode() {
+	asm volatile (
+		"isb;"
+		"mov r1, lr;"
+		"mrs r0, cpsr;"
+		"bic r0, r0, #0xf;"
+		"orr r0, r0, #0x0;"
+		"msr cpsr, r0;"
+		"mov pc, r1;"
+	);
+	
+}
+
+void enable_IRQ() {
+	asm volatile (
+		"isb;"
+		"mov r1, lr;"
+		"mrs r0, cpsr;"
+    	"bic r0, r0, #0x80;"
+    	"msr cpsr, r0;"
+    	"mov pc, r1;"
+	);
+}
+
+void disable_IRQ() {
+	asm volatile (
+		"isb;"
+		"mov r1, lr;"
+		"mrs r0, cpsr;"
+    	"orr r0, r0, #0x80;"
+    	"msr cpsr, r0;"
+    	"mov pc, r1;"
+	);
 }

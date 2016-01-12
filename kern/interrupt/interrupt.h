@@ -17,6 +17,10 @@
 #include <drivers/serial/uart.h>
 #include <drivers/serial/puthex.h>
 
+#define SYS_STACK 0X1D000000
+#define IRQ_STACK 0x1C000000
+#define KERNEL_SPACE 0x80000000
+
 void interrupt_init();
 void C_SVC_handler(uint, uint*);
 void C_prefetch_abort_handler();
@@ -27,7 +31,11 @@ void print_cpsr();
 
 void system_call(uint*);
 
-void enter_user_mode();
-void enter_sys_mode();
+void enter_SVC_mode();
+void enter_SYS_mode();
+void enter_IRQ_mode();
+void enter_USER_mode();
+void enable_IRQ_mode();
+void disable_IRQ_mode();
 
 #endif

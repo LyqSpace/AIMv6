@@ -18,12 +18,22 @@ void kernel_entry(void) {
 	uart_spin_puts("KERN: Here is Kernel!\r\n");
 
 	vm_init();
-	uart_spin_puts("KERN: Enable MMU successfully.\r\n");
+	uart_spin_puts("KERN: Enable MMU successfully!\r\n");
 
 	mm_init();
+
 	print_cpsr();
 	interrupt_init();
-	print_cpsr();
+
+	enter_USER_mode();
+
+	scheduler_init();
+
+	asm volatile (
+		"mov r0, #0x12;"
+		"mov r1, #0x34;"
+		"swi 0x10;"
+	);
 
 	while (1);
 }

@@ -10,9 +10,11 @@
 
 #include "run.h"
 
-static TypeRun *freeMM_head = NULL;
+TypeRun *freeMM_head = NULL;
 
 void mm_init() {
+
+	uart_spin_puts("MM: Initialize memory management!\r\n");
 
 	freeMM_head = (TypeRun*)MM_ADDR_START;
 	freeMM_head->size = MM_ADDR_END - MM_ADDR_START;

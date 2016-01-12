@@ -48,17 +48,11 @@ void mbr_bootmain(void)
 		p_offset = p_offset >> 9;
 		p_paddr = p_paddr >> 9 << 9; 
 		
-		puthex(p_offset);
-		puthex(p_paddr);
-		puthex((u32)p_count);
-		u32 bias = 0;
-		while (p_count > 8) {
-			sd_dma_spin_read((u32)p_paddr, 8, partition2_start + p_offset + (bias << 9));
-			bias += 8;
-			p_count -= 8;
-			puthex((u32)p_count);
+		for (int j = 0; j < p_count; j++) {
+			sd_dma_spin_read((u32)p_paddr, 1, partition2_start + p_offset);
+			p_paddr += (1 << 9);
+			p_offset++;
 		}
-		sd_dma_spin_read((u32)p_paddr+(bias << 9), p_count, partition2_start + p_offset + (bias << 9));
 		program_header = program_header + (program_header_size >> 2);
 	}
 	

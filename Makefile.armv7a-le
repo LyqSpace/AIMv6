@@ -70,15 +70,16 @@ firmware.elf: $(FIRMWARE_OBJS) firmware.ld
 
 MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
-$(MBR_OBJS): EXTRA_CFLAGS = -Os
+$(MBR_OBJS): EXTRA_CFLAGS = -O2
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $(MBR_OBJS)
 # -T boot/arch/$(ARCH)/$(MACH)/mbr.ld
+
 $(KERN_OBJS): EXTRA_CFLAGS = -O2
 
 kern.elf: $(KERN_OBJS) kern/kern.ld
-	$(LD) $(LDFLAGS) -T kern/kern.ld -o $@ $(KERN_OBJS)
+	$(LD) $(LDFLAGS) -T kern/kern.ld -o $@ -O2 $(KERN_OBJS)
 # -T kern/kern.ld
 clean:
 	rm -f firmware.ld
