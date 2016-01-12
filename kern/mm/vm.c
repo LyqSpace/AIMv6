@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2015 Yongqing Liang <root@lyq.me>
+ *
+ * This program is free software; you can redistribute  it and/or modify it
+ * under  the terms of  the GNU General  Public License as published by the
+ * Free Software Foundation;  either version 2 of the  License, or (at your
+ * option) any later version.
+ *
+ */
+
 #include "page_table_defines.h"
 #include <config.h>
 #include <sys/types.h>
@@ -103,33 +113,51 @@ void init_level_1_page_table() {
 
 }
 
-void invalidate_Cache() {
+void invalidate_TLBs() {
 
-	uart_spin_puts("VM: Invalidate branch predictor cache & data cache & instruction cache.\r\n");
-
-	asm volatile (
-		"mov r0, #0x0;"
-		"mcr p15, 0, r0, c7, c5, 6;"
-		"mcr p15, 0, r0, c7, c5, 0;"
-		"mcr p15, 0, r0, c7, c14, 2;"
-		"dsb;"
-		"isb;"
-	);
-
-}
-
-void invalidate_TLB() {
-
-	uart_spin_puts("VM: Invalidate data TLB & instruction TLB & unified TLB.\r\n");
+	uart_spin_puts("VM: Invalidate TLBs.\r\n");
 
 	asm volatile (
 		"mov r0, #0x0;"
-		"mcr p15, 0, r0, c8, c6, 0;"
-		"mcr p15, 0, r0, c8, c5, 0;"
+		//"mcr p15, 0, r0, c8, c6, 0;"
+		//"mcr p15, 0, r0, c8, c5, 0;"
 		"mcr p15, 0, r0, c8, c7, 0;"
 		"dsb;"
 		"isb;"
 	);
+}
+
+void invalidate_ICache() {
+
+	uart_spin_puts("VM: Invalidate instruction cache.\r\n");
+
+	asm volatile (
+		"mov r0, #0x0;"
+		//"mcr p15, 0, r0, c7, c5, 6;"
+		"mcr p15, 0, r0, c7, c5, 0;"
+		//"mcr p15, 0, r0, c7, c14, 2;"
+	);
+
+}
+
+void invalidate_BranchPredictor() {
+
+	uart_spin_puts("VM: Invalidate branch predictor array.\r\n");
+
+	asm volatile (
+		"mov r0, #0x0;"
+		"mcr p15, 0, r0, c7, c5, 6;"
+	);
+}
+
+void invalidate_DCache() {
+
+	uart_spin_puts("VM: Invalidate data cache.\r\n");
+
+	asm volatile (
+		"mcr p15, 0, r11, c7, c14, 2;"
+	);
+
 }
 
 void setup_TTB() {
@@ -165,22 +193,24 @@ void enable_MMU() {
 		"mrc p15, 0, r0, c1, c0, 0;"
 		"orr r0, r0, #0x1;"				// MMU
 		"orr r0, r0, #0x2;"				// align
-    	"orr r0, r0, #0x4;"				// data & unified cache
+		"orr r0, r0, #0x4;"				// data & unified cache
     	"orr r0, r0, #0x20;"			// DMB $ DSB $ ISB
     	"orr r0, r0, #0x800;"			// flow prediction
     	"orr r0, r0, #0x1000;"			// instruction cache
  		"mcr p15, 0, r0, c1, c0, 0;"
-		"isb;"
 		"dsb;"
+		"isb;"
 	);
 }
 
-void setup_vm() {
+void vm_init() {
 
 	init_level_1_page_table();
 
-	invalidate_Cache();
-	invalidate_TLB();
+	invalidate_TLBs();
+	invalidate_ICache();
+	invalidate_BranchPredictor();
+	invalidate_DCache();
 	setup_TTB();
 	setup_Domain_Access();
 	enable_MMU();

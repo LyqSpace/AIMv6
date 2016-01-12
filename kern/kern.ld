@@ -4,7 +4,7 @@ MEMORY
 {
 	KERNEL (rwx) :
 		ORIGIN = 0x700000,
-		LENGTH = 10M
+		LENGTH = 16M
 }
 
 SECTIONS
@@ -14,6 +14,9 @@ SECTIONS
 	}
 	.data : {
 		*(.data)
+	}
+	.vector : {
+		*vector.o(.text)
 	}
 	.rodata : {
 		*(.rodata)

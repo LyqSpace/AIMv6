@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 David Gao <davidgao1001@gmail.com>
+ * Copyright (C) 2015 Yongqing Liang <root@lyq.me>
  *
  * This program is free software; you can redistribute  it and/or modify it
  * under  the terms of  the GNU General  Public License as published by the
@@ -15,7 +15,7 @@
 void (*uart_init)(void) = (void *)(PRELOAD_VECTOR_BASE + 0x4);
 void (*uart_enable)(void) = (void *)(PRELOAD_VECTOR_BASE + 0x8);
 void (*uart_spin_puts)(const char *) = (void *)(PRELOAD_VECTOR_BASE + 0xC);
-void (*sd_dma_spin_read)(u32, u16, u32) = (void*)(PRELOAD_VECTOR_BASE + 0x10);
+int (*sd_dma_spin_read)(u32, u16, u32) = (void*)(PRELOAD_VECTOR_BASE + 0x10);
 void (*puthex)(u32) = (void *)(PRELOAD_VECTOR_BASE + 0x14);
 
 void mbr_bootmain(void)
@@ -28,30 +28,37 @@ void mbr_bootmain(void)
 	
 	/* Read ELF in Partition 2 to Memory */
 	volatile u32 partition2_start = *(u32*)(mbr_memAddr + 0x1D6); // 470
-	//uart_spin_puts("partition2_start\r\n");
-	//puthex(partition2_start); // 0x1dcd6b
 
 	/* Read ELF header to Memory */
 	volatile u8 *elfHeader_memAddr = (void *)0x300000;
 	sd_dma_spin_read((u32)elfHeader_memAddr, 3, partition2_start);
-
+	
 	/* Read kernel file to Memory */
 	void (*kernel_entry)(void) = (void *)(*(u32*)(elfHeader_memAddr + 0x18)); 
 	u16 program_header_size = *(u16*)(elfHeader_memAddr + 0x2A);
 	u16 program_header_num = *(u16*)(elfHeader_memAddr + 0x2C);
 	u32 program_header = *(u32*)(elfHeader_memAddr + 0x1C) + (u32)elfHeader_memAddr;
-	
+
 	for (int i = 0; i < program_header_num; i++) {
 
 		u32 p_offset = *(u32*)(program_header + 4);
 		u32 p_paddr = *(u32*)(program_header + 12);
 		u32 p_filesz = *(u32*)(program_header + 16);
 		u16 p_count = (u16) (((p_paddr + p_filesz) >> 9) - (p_paddr >> 9) + 1);
-
 		p_offset = p_offset >> 9;
 		p_paddr = p_paddr >> 9 << 9; 
-
-		sd_dma_spin_read((u32)p_paddr, p_count, partition2_start + p_offset);
+		
+		puthex(p_offset);
+		puthex(p_paddr);
+		puthex((u32)p_count);
+		u32 bias = 0;
+		while (p_count > 8) {
+			sd_dma_spin_read((u32)p_paddr, 8, partition2_start + p_offset + (bias << 9));
+			bias += 8;
+			p_count -= 8;
+			puthex((u32)p_count);
+		}
+		sd_dma_spin_read((u32)p_paddr+(bias << 9), p_count, partition2_start + p_offset + (bias << 9));
 		program_header = program_header + (program_header_size >> 2);
 	}
 	
