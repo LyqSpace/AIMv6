@@ -53,33 +53,30 @@ void interrupt_init() {
 
 void C_SVC_handler(uint number, uint *params) {
 
-	uart_spin_puts("INTERRUPT: SVC handler.\r\n");
-	puthex(number);
-	puthex(params[0]);
-	puthex(params[1]);
+	//uart_spin_puts("INTERRUPT: SVC handler.\r\n");
 	switch (number) {
 		case 0x10:
 			system_call(params);
 			break;
 		case 1:
-			uart_spin_puts("test.\r\n");		
+			uart_spin_puts("INTERRUPT: test.\r\n");		
 			break;
 		default:
-			uart_spin_puts("nothing.\r\n");		
+			uart_spin_puts("INTERRUPT: nothing.\r\n");		
 	}
 }
 
 void C_IRQ_handler() {
-	uart_spin_puts("IRQ handler.\r\n");
+	uart_spin_puts("INTERRUPT: IRQ handler.\r\n");
 
 }
 
 void C_Prefetch_handler() {
-	
+	uart_spin_puts("INTERRUPT: Prefetch handler.\r\n");	
 }
 
 void C_Data_handler() {
-
+	uart_spin_puts("INTERRUPT: Data handler.\r\n");	
 }
 
 void print_spsr() {

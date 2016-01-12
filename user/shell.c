@@ -12,8 +12,19 @@
 
 int shell_main() {
 
-	puts("AABBCCDD\r\n");
-	//puts("USER: Hello world!\r\n");
+	puts("                                         \r\n");
+	puts("=========================================\r\n");
+	puts("       =         = = = =     =         = \r\n");
+	puts("      = =        =       =   = =     = = \r\n");
+	puts("     =   =       =       =   =  =   =  = \r\n");
+	puts("    = = = =      = = = =     =    =    = \r\n");
+	puts("   =       =     =   =       =         = \r\n");
+	puts("  =         =    =     =     =         = \r\n");
+	puts(" =           =   =       =   =         = \r\n");
+	puts("=========================================\r\n");
+	puts("                                         \r\n");
+	puts("root@lyq-ARM: Hello world!\r\n");
+	puts("root@lyq-ARM: ");
 	
 	while (1);
 

@@ -28,7 +28,7 @@ void kernel_main(void) {
 	interrupt_init();
 
 	scheduler_init();
-
+	
 	load_shell();
 
 	enter_scheduler();

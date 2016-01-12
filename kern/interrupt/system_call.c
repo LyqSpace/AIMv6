@@ -29,7 +29,6 @@ void system_call(uint *params) {
 
 	case PUTS:
 		addr = (char*)params[1];
-		puthex(*(u32*)params[1]);
 		uart_spin_puts(addr);
 		break;
 	case 2:

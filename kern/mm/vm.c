@@ -9,11 +9,6 @@
  */
 
 #include "page_table_defines.h"
-#include <config.h>
-#include <sys/types.h>
-#include <stdarg.h>
-#include <drivers/serial/uart.h>
-#include <drivers/serial/puthex.h>
 #include "run.h"
 
 void fill_pte_common(TypePte *pte, u32 addr) {
@@ -37,8 +32,6 @@ void fill_pte_common(TypePte *pte, u32 addr) {
 
 void kernel_high_addr_map() {
 
-	uart_spin_puts("VM: Map high kernel space virtual address to physical address.\r\n");
-	
 	TypePte *kernel_base = (TypePte*)PAGE_TABLE_ADDRESS + (KERNEL_SPACE >> MEM_SECTION_SHIFT);
 	
 	for (u32 addr = 0; addr < KERNEL_MEM_SIZE; addr++) {
@@ -53,8 +46,6 @@ void kernel_high_addr_map() {
 
 void kernel_origin_addr_map() {
 
-	uart_spin_puts("VM: Map origin kernel space virtual address to physical address.\r\n");
-	
 	TypePte *origin_base = (TypePte*)PAGE_TABLE_ADDRESS;
 
 	for (u32 addr = 0; addr < KERNEL_MEM_SIZE; addr++) {
@@ -68,8 +59,6 @@ void kernel_origin_addr_map() {
 }
 
 void kernel_stack_map() {
-
-	uart_spin_puts("VM: Map kernel stack virtual address to physical address.\r\n");
 
 	TypePte *kernel_stack_base = (TypePte*)PAGE_TABLE_ADDRESS + (KERNEL_STACK_SPACE >> MEM_SECTION_SHIFT);
 	u32 kernel_stack_phy_base = KERNEL_STACK_PHY >> MEM_SECTION_SHIFT;
@@ -87,8 +76,6 @@ void kernel_stack_map() {
 
 void device_map() {
 
-	uart_spin_puts("VM: Map device virtual address to physical address.\r\n");
-
 	TypePte *device_base = (TypePte*)PAGE_TABLE_ADDRESS + (DEVICE_SPACE >> MEM_SECTION_SHIFT);
 	u32 device_phy = DEVICE_SPACE >> MEM_SECTION_SHIFT;
 	
@@ -103,6 +90,8 @@ void device_map() {
 	}
 }
 
+u32 kernel_TTB[4096];
+
 void init_level_1_page_table() {
 
 	uart_spin_puts("VM: Set up Level 1 Page Table.\r\n");
@@ -112,11 +101,15 @@ void init_level_1_page_table() {
 	kernel_stack_map();
 	device_map();
 
+	for (int i = 0; i < 4096; i++) {
+
+		uint *pte = (uint*)(PAGE_TABLE_ADDRESS + i * 4);
+		kernel_TTB[i] = *pte;
+	}
+
 }
 
 void invalidate_TLBs() {
-
-	uart_spin_puts("VM: Invalidate TLBs.\r\n");
 
 	asm volatile (
 		"mov r0, #0x0;"
@@ -130,8 +123,6 @@ void invalidate_TLBs() {
 
 void invalidate_ICache() {
 
-	uart_spin_puts("VM: Invalidate instruction cache.\r\n");
-
 	asm volatile (
 		"mov r0, #0x0;"
 		//"mcr p15, 0, r0, c7, c5, 6;"
@@ -143,8 +134,6 @@ void invalidate_ICache() {
 
 void invalidate_BranchPredictor() {
 
-	uart_spin_puts("VM: Invalidate branch predictor array.\r\n");
-
 	asm volatile (
 		"mov r0, #0x0;"
 		"mcr p15, 0, r0, c7, c5, 6;"
@@ -153,15 +142,14 @@ void invalidate_BranchPredictor() {
 
 void invalidate_DCache() {
 
-	uart_spin_puts("VM: Invalidate data cache.\r\n");
-
 	asm volatile (
 		"mcr p15, 0, r11, c7, c14, 2;"
 	);
-
 }
 
 void invalidate_TLBs_Caches() {
+
+	uart_spin_puts("VM: Invalidate TLBs & caches.\r\n");
 
 	invalidate_TLBs();
 	invalidate_ICache();
@@ -202,18 +190,16 @@ void enable_MMU() {
 	asm volatile (
 		"mrc p15, 0, r0, c1, c0, 0;"
 		"orr r0, r0, #0x1;"				// MMU
-		"orr r0, r0, #0x2;"				// align
-		"orr r0, r0, #0x4;"				// data & unified cache
-    	"orr r0, r0, #0x20;"			// DMB $ DSB $ ISB
-    	"orr r0, r0, #0x800;"			// flow prediction
-    	"orr r0, r0, #0x1000;"			// instruction cache
+		// "orr r0, r0, #0x2;"				// align
+		// "orr r0, r0, #0x4;"				// data & unified cache
+  		// "orr r0, r0, #0x20;"			// DMB $ DSB $ ISB
+  		// "orr r0, r0, #0x800;"			// flow prediction
+  		// "orr r0, r0, #0x1000;"			// instruction cache
  		"mcr p15, 0, r0, c1, c0, 0;"
 		"dsb;"
 		"isb;"
 	);
 }
-
-u32 kernel_TTB[4096];
 
 void vm_init() {
 
@@ -246,7 +232,8 @@ char* new_TTB() {
 
 	char *ttb_addr = kalloc(1);
 	for (int i = 0; i < 4096; i++) {
-		ttb_addr[i] = kernel_TTB[i];
+		u32 *ttb_ele = (u32*)(ttb_addr + i * 4);
+		*ttb_ele = kernel_TTB[i];
 	}
 	return ttb_addr;
 

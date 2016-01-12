@@ -18,6 +18,7 @@
 #include <drivers/serial/puthex.h>
 #include "../mm/page_table_defines.h"
 #include "../interrupt/mode_switch.h"
+#include "../interrupt/system_call.h"
 
 typedef struct TypeContext {
     uint r[13];

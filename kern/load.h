@@ -18,6 +18,7 @@
 #include "kern/mm/page_table_defines.h"
 #include "kern/sched/sched.h"
 #include "kern/interrupt/mode_switch.h"
- #include "kern/interrupt/interrupt.h"
+#include "kern/interrupt/interrupt.h"
+#include "kern/interrupt/system_call.h"
 
 void load_shell();

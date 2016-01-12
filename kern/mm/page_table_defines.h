@@ -11,6 +11,13 @@
 #ifndef PAGE_TABLE_DEFINES_H
 #define PAGE_TABLE_DEFINES_H
 
+#include <config.h>
+#include <sys/types.h>
+#include <stdarg.h>
+#include <drivers/serial/uart.h>
+#include <drivers/serial/puthex.h>
+
+
 #define PAGE_TABLE_ADDRESS		0x1F000000
 #define KERNEL_SPACE			0x80000000
 #define DEVICE_SPACE			0xE0000000
@@ -38,6 +45,8 @@ typedef struct TypePte {
 	unsigned NS : 1;
 	unsigned base : 12;	
 } TypePte;
+
+extern uint kernel_TTB[4096];
 
 void invalidate_TLBs_Caches();
 void setup_TTB();

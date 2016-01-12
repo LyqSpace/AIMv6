@@ -21,20 +21,11 @@ void load_shell() {
 	for (int i = 0; i < 10; i++) {
     	sd_dma_spin_read((uint)shell_addr-KERNEL_SPACE+(i<<9), 1, part2_offset+10000+i);
     }
-    puthex(*(u32*)0x00900000);
-    puthex(*(u32*)0x80900830);
-
-    enter_USER_mode();
-    
-    asm volatile (
-    	"mov pc, %0;"
-    	:
-    	:"r"(shell_addr)
-    );
 
     char *ttb_addr = new_TTB();
     TypePte *ttb_first = (void*)ttb_addr;
     ttb_first->base = ((u32)shell_addr - KERNEL_SPACE) >> 20;
+	
     create_process(ttb_addr);
 
     return;

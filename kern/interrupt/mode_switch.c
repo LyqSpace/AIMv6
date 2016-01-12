@@ -19,6 +19,9 @@ void enter_SVC_mode() {
 		"orr r0, r0, #0x3;"
 		"msr cpsr, r0;"
 		"mov pc, r1;"
+		:
+		:
+		:"r0","r1"
 	);
 }
 
@@ -52,10 +55,13 @@ void enter_USER_mode() {
 		"isb;"
 		"mov r1, lr;"
 		"mrs r0, cpsr;"
-		"bic r0, r0, #0xf;"
-		"and r0, r0, #0xfffffff0;"
+		"ldr r2, =#0xfffffff0;"
+		"and r0, r0, r2;"
 		"msr cpsr, r0;"
 		"mov pc, r1;"
+		:
+		:
+		:"r0","r1","r2"
 	);
 	
 }
