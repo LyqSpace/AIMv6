@@ -13,6 +13,7 @@
 int shell_main() {
 
 	puts("                                         \r\n");
+	puts("                                         \r\n");
 	puts("=========================================\r\n");
 	puts("       =         = = = =     =         = \r\n");
 	puts("      = =        =       =   = =     = = \r\n");
@@ -21,10 +22,12 @@ int shell_main() {
 	puts("   =       =     =   =       =         = \r\n");
 	puts("  =         =    =     =     =         = \r\n");
 	puts(" =           =   =       =   =         = \r\n");
+	puts("                                         \r\n");
+	puts("    https://github.com/LyqSpace/AIMv6    \r\n");
 	puts("=========================================\r\n");
 	puts("                                         \r\n");
-	puts("root@lyq-ARM: Hello world!\r\n");
-	puts("root@lyq-ARM: ");
+	puts("root@lyq-ARM > Hello world!\r\n");
+	puts("root@lyq-ARM > ");
 	
 	while (1);
 

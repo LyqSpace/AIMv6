@@ -17,6 +17,8 @@
 
 void kernel_main(void) {
 
+	get_cur_mode();
+
 	uart_spin_puts("KERN: Here is Kernel!\r\n");
 
 	vm_init();
@@ -24,7 +26,6 @@ void kernel_main(void) {
 
 	mm_init();
 
-	print_cpsr();
 	interrupt_init();
 
 	scheduler_init();

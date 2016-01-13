@@ -87,3 +87,35 @@ void disable_IRQ() {
     	"mov pc, r1;"
 	);
 }
+
+void get_cur_mode() {
+
+	int cpsr;
+	asm volatile(
+		"mrs r0, cpsr;"
+		"mov %0, r0;" 
+		: "=r"(cpsr)
+	);
+
+	switch (cpsr) {
+	case 0x600001D0:
+		puts("MODE: Now in USER mode. CPSR=0x600001D0");
+		break;
+	case 0x600001DF:
+		uart_spin_puts("MODE: Now in SYS mode. CPSR=");	
+		puthex(cpsr);
+		break;
+	case 0x600001D3:
+		uart_spin_puts("MODE: Now in SVC mode. CPSR=");	
+		puthex(cpsr);
+		break;
+	case 0x600001D2:
+		uart_spin_puts("MODE: Now in IRQ mode. CPSR=");	
+		puthex(cpsr);
+		break;
+	default:
+		uart_spin_puts("MODE: Now in UNKNOWN mode. CPSR=");	
+		puthex(cpsr);
+		break;
+	}
+}

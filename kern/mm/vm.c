@@ -16,10 +16,10 @@ void fill_pte_common(TypePte *pte, u32 addr) {
 	pte->type =	2;		// 0-1
 	pte->B = 0;			// 2
 	pte->C = 0;			// 3
-	pte->XN = 0;		// 4
+	pte->XN = 1;		// 4
 	pte->Domain = 0x0;	// 5-8
 	pte->zero_L = 0;	// 9
-	pte->AP_L = 0x2;	// 10-11
+	pte->AP_L = 0x3;	// 10-11
 	pte->TEX = 0x0;		// 12-14
 	pte->AP_H = 0;		// 15
 	pte->S = 1;			// 16
@@ -176,7 +176,7 @@ void setup_TTB() {
 void setup_Domain_Access() {
 	uart_spin_puts("VM: Set up domain access.\r\n");
 	asm volatile (
-		"ldr r0, =0x00000001;" // 01 client mode; 11 no check mode;
+		"ldr r0, =0xffffffff;" // 01 client mode; 11 no check mode;
  		"mcr p15, 0, r0, c3, c0, 0;"
  		"dsb;"
  		"isb;"

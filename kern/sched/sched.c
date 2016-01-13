@@ -77,8 +77,6 @@ uint create_process(char *ttb_addr) {
 void enter_scheduler() {
 
 	uart_spin_puts("SCHED: Schedule first process.\r\n");
-	
-	uart_spin_puts("SCHED: Context switch.\r\n");
 
 	uint PCB_id = list_ready[list_ready_front++];
 	PCBs[PCB_id].state = STATE_RUNNING;
@@ -97,10 +95,17 @@ void enter_scheduler() {
 	setup_Domain_Access();
 	enable_MMU();
 
+	uart_spin_puts("SCHED: Enter USER mode.\r\n");
+	asm volatile (
+		"swi 0x20;"
+	);
+
+	get_cur_mode();
+	
 	asm volatile (
 		"mov pc, %0;"
 		:
 		:"r"(PCBs[PCB_id].context.pc)
-		:"r0"
+		:"r7"
 	);
 }

@@ -12,7 +12,7 @@
 
 void load_shell() {
 
-	uart_spin_puts("LOAD: Loading Shell.\r\n");
+	uart_spin_puts("LOAD: Loading Shell process.\r\n");
 
 	char *shell_addr = kalloc(1);
 	sd_dma_spin_read((uint)shell_addr - KERNEL_SPACE, 1, 0);

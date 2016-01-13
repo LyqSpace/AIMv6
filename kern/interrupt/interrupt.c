@@ -39,7 +39,7 @@ void interrupt_init() {
 	SVC_init();
 	IRQ_init();
 	enter_SYS_mode();
-
+	
 	asm volatile(
 		"ldr r0, =interrupt_vector;"
 		"ldr r1, =0x80000000;"
@@ -53,16 +53,26 @@ void interrupt_init() {
 
 void C_SVC_handler(uint number, uint *params) {
 
-	//uart_spin_puts("INTERRUPT: SVC handler.\r\n");
+	// uart_spin_puts("INTERRUPT: SVC handler.\r\n");
+	// print_spsr();
+	// print_cpsr();
 	switch (number) {
+
 		case 0x10:
 			system_call(params);
 			break;
-		case 1:
-			uart_spin_puts("INTERRUPT: test.\r\n");		
+
+		case 0x20: // Change mode
+			asm volatile (
+				"ldr r0, =0x600001D0;"
+				"msr spsr, r0;"
+			);
+			//print_spsr();
 			break;
+
 		default:
 			uart_spin_puts("INTERRUPT: nothing.\r\n");		
+			break;
 	}
 }
 
